@@ -165,7 +165,7 @@ namespace EdgeDeflector
             return "http://" + new_uri;
         }
 
-        static void OpenUri(string uri)
+        static void OpenUri(string uri, string arg)
         {
             if (!IsUri(uri) || !IsHttpUri(uri))
             {
@@ -175,7 +175,8 @@ namespace EdgeDeflector
             ProcessStartInfo launcher = new ProcessStartInfo()
             {
                 FileName = uri,
-                UseShellExecute = true
+                UseShellExecute = true,
+                Arguments = arg
             };
             Process.Start(launcher);
         }
@@ -185,8 +186,11 @@ namespace EdgeDeflector
             // Assume argument is URI
             if (args.Length == 1 && IsMsEdgeUri(args[0]))
             {
+                RegistryKey appkey = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\EdgeDeflector");
+                string arg = (string)appkey.GetValue("Arguments");
                 string uri = RewriteMsEdgeUriSchema(args[0]);
-                OpenUri(uri);
+                appkey.Close();
+                OpenUri(uri, arg);
             }
 
             // Install when running without argument
